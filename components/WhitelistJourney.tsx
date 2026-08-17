@@ -1,97 +1,45 @@
 "use client";
-import {useEffect,useState} from "react";
-import {GiwaGame} from "@/components/GiwaGame";
-import {WhitelistForm} from "@/components/WhitelistForm";
-import {WhitelistProgress} from "@/components/WhitelistProgress";
-import {XSignal} from "@/components/XSignal";
-import {SignalVerified} from "@/components/SignalVerified";
+
+import {FormEvent,useMemo,useState} from "react";
+import {ArrowLeft,ArrowUpRight,Check,ChevronRight} from "lucide-react";
+import {formatTileNumber,siteConfig} from "@/lib/site-config";
 
 type Stage="intro"|"game"|"application"|"signal"|"verified";
-type ResumeStage=Exclude<Stage,"intro">;
 type Session={applicationId:string;tileNumber:number};
+const giwa=[{id:"flower",mark:"✿",ko:"꽃기와"},{id:"moon",mark:"☾",ko:"달기와"},{id:"star",mark:"✦",ko:"별기와"},{id:"sun",mark:"☀",ko:"해기와"}];
+const rounds=["flower","moon","star"];
 
 export function WhitelistJourney(){
-  const[stage,setStage]=useState<Stage>("intro");
-  const[resumeStage,setResumeStage]=useState<ResumeStage|null>(null);
-  const[token,setToken]=useState("");
-  const[session,setSession]=useState<Session|null>(null);
-  const[ready,setReady]=useState(false);
+ const[stage,setStage]=useState<Stage>("intro");
+ const[round,setRound]=useState(0);const[wrong,setWrong]=useState("");
+ const[token,setToken]=useState("");const[session,setSession]=useState<Session|null>(null);
+ const[loading,setLoading]=useState(false);const[error,setError]=useState("");
+ const target=useMemo(()=>giwa.find(x=>x.id===rounds[round])!,[round]);
 
-  useEffect(()=>{
-    const savedSession=sessionStorage.getItem("tile_application_session");
-    const savedStage=sessionStorage.getItem("tile_journey_stage") as ResumeStage|null;
-    const savedToken=sessionStorage.getItem("tile_assembly_token")||"";
-    if(savedSession){try{setSession(JSON.parse(savedSession))}catch{sessionStorage.removeItem("tile_application_session")}}
-    if(savedToken)setToken(savedToken);
-    if(savedStage==='application'||savedStage==='signal'||savedStage==='verified')setResumeStage(savedStage);
-    else if(savedToken)setResumeStage('application');
-    else setResumeStage('game');
-    setStage('intro');
-    setReady(true);
-  },[]);
+ async function choose(id:string){if(loading)return;if(id!==target.id){setWrong(id);setTimeout(()=>setWrong(""),420);return}if(round<2){setRound(v=>v+1);return}setLoading(true);setError("");try{const r=await fetch('/api/whitelist/assembly',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed:true})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Could not unlock whitelist.');setToken(j.token);setStage('application')}catch(e){setError(e instanceof Error?e.message:'Could not unlock whitelist.')}finally{setLoading(false)}}
 
-  function enterWhitelist(){
-    if(resumeStage==='signal'&&session){setStage('signal');return}
-    if(resumeStage==='verified'&&session){setStage('verified');return}
-    if(token){setStage('application');return}
-    setStage('game');
-  }
+ async function apply(e:FormEvent<HTMLFormElement>){e.preventDefault();setLoading(true);setError("");const f=new FormData(e.currentTarget);const body={...Object.fromEntries(f),accepted:f.get('accepted')==='on',assembly_token:token};try{const r=await fetch('/api/whitelist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(j.error||'Application failed.');setSession({applicationId:j.applicationId,tileNumber:j.tileNumber});setStage('signal')}catch(e){setError(e instanceof Error?e.message:'Application failed.')}finally{setLoading(false)}}
 
-  function gameComplete(nextToken:string){setToken(nextToken);setResumeStage('application');setStage('application');sessionStorage.setItem('tile_journey_stage','application')}
-  function submitted(applicationId:string,tileNumber:number){const next={applicationId,tileNumber};setSession(next);setResumeStage('signal');setStage('signal');sessionStorage.setItem('tile_application_session',JSON.stringify(next));sessionStorage.setItem('tile_journey_stage','signal')}
+ async function verify(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!session)return;setLoading(true);setError("");const url=String(new FormData(e.currentTarget).get('x_post_url')||'');try{const r=await fetch('/api/whitelist/verify-x',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({applicationId:session.applicationId,xPostUrl:url})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Verification failed.');setStage('verified')}catch(e){setError(e instanceof Error?e.message:'Verification failed.')}finally{setLoading(false)}}
 
-  if(!ready)return <section className="korean-landing"/>;
-  const active={game:0,application:1,signal:2,verified:3}[stage as ResumeStage] ?? 0;
+ const post=session?siteConfig.createSignalPost(session.tileNumber):"";const intent=`https://x.com/intent/post?text=${encodeURIComponent(post)}`;
+ return <main className={`tile-world stage-${stage}`}>
+  <div className="world-shade"/><div className="world-grain"/>
+  <header className="world-header"><button className="tile-brand" onClick={()=>setStage('intro')}><span className="tile-seal">T</span><span><b>TILE</b><small>타일 · 1111</small></span></button><a className="x-chip" href={siteConfig.xUrl} target="_blank" rel="noreferrer">𝕏</a></header>
 
-  if(stage==='intro')return <section className="korean-landing cinematic-home">
-    <div className="scene-vignette"/>
-    <header className="cinematic-topbar">
-      <div><div className="brand-lockup"><span className="brand-seal">T</span><strong>TILE</strong><span lang="ko">타일</span></div><small>1111 PIECES</small></div>
-      <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="cinematic-x">𝕏&nbsp; Twitter</a>
-    </header>
+  {stage==='intro'&&<section className="hero-ritual"><div className="hero-emblem">✿</div><p className="overline">A KOREAN-BORN NFT COLLECTION</p><h1>TILE</h1><p className="hero-count">1111 ARE HIDING</p><p className="hero-ko">한 장씩, 이야기를 완성하다.</p><button className="stone-cta" onClick={()=>setStage('game')}><span>ENTER WHITELIST</span><ChevronRight/><small>기와를 찾고, 당신의 타일을 남기세요</small></button><div className="hero-meta"><span>1111 PIECES</span><span>KOREAN HERITAGE</span><span>ONE STORY</span></div></section>}
 
-    <div className="cinematic-center">
-      <div className="hero-medallion" aria-hidden="true">✿</div>
-      <h1>TILE</h1>
-      <p className="hero-subtitle">1111 ARE HIDING</p>
-      <p lang="ko" className="hero-korean">한 장씩, 이야기를 완성하다.</p>
-      <p className="hero-line">One tile at a time.</p>
-      <button onClick={enterWhitelist} className="enter-wl">ENTER WHITELIST <span>›</span><small lang="ko">화이트리스트에 참여하고, 타일의 일부가 되세요.</small></button>
-    </div>
+  {stage!=='intro'&&<section className="ritual-shell"><button className="back-link" onClick={()=>setStage('intro')}><ArrowLeft size={15}/> RETURN TO COURTYARD</button><div className="ritual-head"><div><p className="overline">WHITELIST RITUAL · 화이트리스트</p><h2>{stage==='game'?'READ THE ROOF':stage==='application'?'LEAVE YOUR MARK':stage==='signal'?'SEND THE SIGNAL':'YOUR TILE IS MARKED'}</h2></div><div className="ritual-progress">{['GIWA','APPLY','SIGNAL','DONE'].map((s,i)=><span key={s} className={i<={game:0,application:1,signal:2,verified:3}[stage]?'on':''}>{String(i+1).padStart(2,'0')} {s}</span>)}</div></div>
 
-    <div className="cinematic-info">
-      <div><b>1111 PIECES</b><span>총 1111개의 타일</span></div>
-      <div><b>KOREAN HERITAGE</b><span>기와와 한옥에서 영감을 받다</span></div>
-      <div><b>ONE STORY</b><span>모두가 함께 완성하는 이야기</span></div>
-      <div><b>BUILT TOGETHER</b><span>커뮤니티와 함께 만드는 문화</span></div>
-    </div>
-  </section>;
+   {stage==='game'&&<div className="ritual-grid"><aside className="story-panel"><p className="chapter">01 · 기와</p><h3>Find the tile hidden in the roof.</h3><p>A hanok roof is made one giwa at a time. Choose the requested symbol three times to unlock your application.</p><div className="target-plaque"><small>ROUND {round+1} / 3 · FIND</small><strong>{target.mark}</strong><span>{target.ko}</span></div></aside><div><div className="roof-choice-grid">{giwa.map(t=><button key={t.id} className={`roof-choice ${wrong===t.id?'wrong':''}`} onClick={()=>choose(t.id)}><span className="roof-ridge"/><b>{t.mark}</b><span>{t.ko}</span><small>GIWA</small>{rounds.slice(0,round).includes(t.id)&&<Check className="picked" size={18}/>}</button>)}</div>{error&&<p className="ritual-error">{error}</p>}</div></div>}
 
-  return <section id="whitelist" className="korean-landing">
-    <div className="scene-vignette"/>
-    <div className="wl-shell">
-      <header className="mb-5 flex items-center justify-between gap-4 px-1">
-        <div>
-          <p className="text-3xl font-black tracking-[-.05em] text-white">TILE <span lang="ko" className="wl-gold">타일</span></p>
-          <p lang="ko" className="mt-1 text-xs font-semibold text-white/60">기와와 한옥에서 시작되는 1,111개의 조각</p>
-        </div>
-        <span className="wl-pill rounded-full px-4 py-2 text-xs font-bold">WL OPEN</span>
-      </header>
+   {stage==='application'&&<form onSubmit={apply} className="ritual-grid"><aside className="story-panel"><p className="chapter">02 · 신청</p><h3>Leave your mark in TILE.</h3><p>Your application receives a participant TILE number before the X signal step.</p><div className="number-plaque"><strong>1111</strong><small>PIECES · ONE STORY</small></div></aside><div className="form-grid"><Field label="X USERNAME *"><input name="x_username" required maxLength={16} pattern="@?[A-Za-z0-9_]+" placeholder="@username"/></Field><Field label="WALLET ADDRESS *"><input name="wallet_address" required minLength={20} maxLength={128} placeholder="0x…"/></Field><Field wide label="TELEGRAM / DISCORD"><input name="social_contact" maxLength={128} placeholder="Optional"/></Field><Field wide label="WHY TILE? *"><textarea name="reason" required minLength={10} maxLength={1000} placeholder="Tell us something real…"/></Field><Field wide label="HOW DID YOU FIND TILE? *"><select name="discovery_source" required defaultValue=""><option value="" disabled>Select one</option><option>X</option><option>Friend</option><option>GIWA Community</option><option>Telegram</option><option>Other</option></select></Field><label className="consent"><input type="checkbox" name="accepted" required/> I understand that applying does not guarantee whitelist allocation.</label>{error&&<p className="ritual-error wide">{error}</p>}<button className="ritual-button wide" disabled={loading}>{loading?'SUBMITTING…':'SUBMIT APPLICATION'}<ChevronRight/></button></div></form>}
 
-      <div className="wl-glass rounded-[2rem] p-5 sm:p-8">
-        <div className="mb-7 text-center">
-          <p className="wl-kicker" lang="ko">한국의 기와에서 영감을 받은 NFT 컬렉션</p>
-          <h2 className="mt-3 text-4xl font-black tracking-[-.055em] text-white sm:text-6xl">GET YOUR TILE.</h2>
-          <p className="wl-muted mx-auto mt-4 max-w-2xl text-sm font-medium leading-6">Complete the GIWA challenge, submit your whitelist application, share the prepared X post, then return with the link to verify your request.</p>
-        </div>
-        <WhitelistProgress active={active}/>
-        <div className="mt-7 border-t wl-divider pt-7">
-          {stage==='game'&&<GiwaGame onComplete={gameComplete}/>} 
-          {stage==='application'&&token&&<WhitelistForm assemblyToken={token} onSubmitted={submitted}/>} 
-          {stage==='signal'&&session&&<XSignal {...session} onVerified={()=>{setResumeStage('verified');setStage('verified');sessionStorage.setItem('tile_journey_stage','verified')}}/>}
-          {stage==='verified'&&session&&<SignalVerified tileNumber={session.tileNumber}/>} 
-        </div>
-      </div>
-    </div>
-  </section>
+   {stage==='signal'&&session&&<div className="ritual-grid"><aside className="story-panel"><p className="chapter">03 · 신호</p><h3>Carry your TILE beyond the courtyard.</h3><p>Your application is recorded. Share the prepared signal on X, then return with the post link.</p><div className="id-plaque"><small>YOUR PARTICIPANT TILE</small><strong>TILE #{formatTileNumber(session.tileNumber)}</strong></div></aside><div className="signal-panel"><pre>{post}</pre><a className="ritual-button inline" href={intent} target="_blank" rel="noreferrer">POST ON X <ArrowUpRight size={17}/></a><form onSubmit={verify} className="verify-form"><Field label="PASTE YOUR X POST LINK"><input name="x_post_url" required type="url" placeholder="https://x.com/username/status/..."/></Field>{error&&<p className="ritual-error">{error}</p>}<button className="ritual-button" disabled={loading}>{loading?'VERIFYING…':'VERIFY WL REQUEST'}<Check size={17}/></button></form></div></div>}
+
+   {stage==='verified'&&session&&<div className="done-stage"><div className="done-seal">✿</div><p className="overline">SIGNAL VERIFIED · 확인 완료</p><h3>TILE #{formatTileNumber(session.tileNumber)}</h3><p>Your whitelist request is verified.</p><small>Final whitelist allocation remains subject to TILE team selection.</small></div>}
+  </section>}
+ </main>
 }
+
+function Field({label,wide,children}:{label:string;wide?:boolean;children:React.ReactNode}){return <label className={`field ${wide?'wide':''}`}><span>{label}</span>{children}</label>}
