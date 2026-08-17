@@ -1,5 +1,3 @@
-import {WhitelistJourney} from '@/components/WhitelistJourney';
+import EnhancedPage from "@/components/EnhancedPage";
 
-export default function Home(){
-  return <main><WhitelistJourney/></main>;
-}
+export default function Page(){return <EnhancedPage/>;}
