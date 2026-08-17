@@ -1,0 +1,2 @@
+import {Header} from '@/components/Header';import {Hero} from '@/components/Hero';import {Collection} from '@/components/Collection';import {TileGrid} from '@/components/TileGrid';import {Journey} from '@/components/Journey';import {WhitelistJourney} from '@/components/WhitelistJourney';import {Lore} from '@/components/Lore';import {FAQ} from '@/components/FAQ';import {Footer} from '@/components/Footer';
+export default function Home(){return <><Header/><main><Hero/><Collection/><TileGrid/><Journey/><WhitelistJourney/><Lore/><FAQ/></main><Footer/></>}
