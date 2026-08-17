@@ -1,0 +1,16 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse"><stop stop-color="#171813"/><stop offset="1" stop-color="#080907"/></linearGradient>
+  <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(888 170) rotate(135) scale(360 300)"><stop stop-color="#D3A95F" stop-opacity=".22"/><stop offset="1" stop-color="#D3A95F" stop-opacity="0"/></radialGradient>
+  <pattern id="tiles" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M0 24C18 6 30 6 48 24C66 42 78 42 96 24" stroke="#C89A52" stroke-opacity=".11" stroke-width="2"/><path d="M0 48C18 30 30 30 48 48C66 66 78 66 96 48" stroke="#C89A52" stroke-opacity=".07" stroke-width="2"/></pattern>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/><rect width="1200" height="630" fill="url(#glow)"/><rect width="1200" height="630" fill="url(#tiles)"/>
+<path d="M0 470C180 410 310 432 470 492C632 553 780 561 1200 430V630H0V470Z" fill="#0D0F0C"/>
+<path d="M95 448C275 354 435 365 594 424C723 472 879 472 1108 392" stroke="#D0A55A" stroke-opacity=".22" stroke-width="3"/>
+<circle cx="950" cy="162" r="93" stroke="#D2A85D" stroke-opacity=".45"/><circle cx="950" cy="162" r="72" stroke="#D2A85D" stroke-opacity=".18"/><text x="950" y="179" text-anchor="middle" font-family="Georgia,serif" font-size="62" fill="#D8B36C">✿</text>
+<text x="84" y="95" font-family="Arial,sans-serif" font-size="18" letter-spacing="5" fill="#C79A50">TILE · 기와 · 1111</text>
+<text x="80" y="300" font-family="Georgia,serif" font-size="156" fill="#F4EAD7">TILE</text>
+<text x="88" y="354" font-family="Arial,sans-serif" font-size="22" letter-spacing="7" fill="#E7D8BC">ONE TILE BECOMES PART OF SOMETHING GREATER.</text>
+<text x="88" y="520" font-family="Arial,sans-serif" font-size="17" letter-spacing="3" fill="#B6935A">1,111 · ROBINHOOD CHAIN → GIWA</text>
+<text x="88" y="557" font-family="Arial,sans-serif" font-size="16" letter-spacing="2" fill="#827A6B">@TileOnGIWA</text>
+</svg>
