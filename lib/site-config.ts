@@ -8,10 +8,12 @@ export const siteConfig = {
   mintDate: "TBA",
   createSignalPost(_tileNumber?: number) {
     return [
-      "I just completed my TILE whitelist application.",
+      "One tile becomes part of something greater.",
       "",
-      "1,111 pieces. One story.",
-      "Born from Korean giwa culture, built for the next chapter.",
+      "I’m joining the first 1,111.",
+      "",
+      "TILE · 기와",
+      "Minting first on Robinhood Chain. Moving to GIWA when mainnet is live.",
       "",
       "@TileOnGIWA",
     ].join("\n");
