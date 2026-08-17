@@ -6,7 +6,7 @@ export const siteConfig = {
   whitelistPostUrl: "#",
   mintNetwork: "Robinhood Chain mainnet",
   mintDate: "TBA",
-  createSignalPost() {
+  createSignalPost(_tileNumber?: number) {
     return [
       "I just completed my TILE whitelist application.",
       "",
@@ -17,3 +17,7 @@ export const siteConfig = {
     ].join("\n");
   },
 } as const;
+
+export function formatTileNumber(value: number) {
+  return String(value).padStart(4, "0");
+}
