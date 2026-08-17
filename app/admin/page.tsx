@@ -1,55 +1,22 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Download, RefreshCw, ShieldAlert } from "lucide-react";
 import { formatTileNumber } from "@/lib/site-config";
 
-type Application = {
-  id: string; applicant_tile_number: number; x_username: string; wallet_address: string;
-  social_contact: string | null; discovery_source: string; assembly_completed: boolean;
-  x_post_url: string | null; x_verified_at: string | null; verification_status: string;
-  status: string; created_at: string;
-};
+type Application = { id:string;applicant_tile_number:number;x_username:string;wallet_address:string;social_contact:string|null;discovery_source:string;assembly_completed:boolean;x_post_url:string|null;x_verified_at:string|null;verification_status:string;status:string;created_at:string; };
 
-export default function Admin() {
-  const [items, setItems] = useState<Application[]>([]);
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [search, setSearch] = useState("");
-  const load = useCallback(async () => {
-    const response = await fetch("/api/admin/applications");
-    setAuthenticated(response.ok);
-    if (response.ok) setItems(await response.json());
-  }, []);
-  useEffect(() => { void load(); }, [load]);
-
-  async function login(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const password = String(new FormData(event.currentTarget).get("password"));
-    const response = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
-    if (response.ok) void load(); else setAuthenticated(false);
-  }
-  async function updateStatus(id: string, status: string) {
-    const response = await fetch("/api/admin/applications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
-    if (response.ok) setItems((all) => all.map((item) => item.id === id ? { ...item, status } : item));
-  }
-  const filtered = useMemo(() => items.filter((item) =>
-    `${item.x_username} ${item.wallet_address} ${item.applicant_tile_number}`.toLowerCase().includes(search.toLowerCase())), [items, search]);
-  const count = (status: string) => items.filter((item) => item.status === status).length;
-
-  if (authenticated !== true) return <main className="mesh flex min-h-screen items-center justify-center p-6"><form onSubmit={login} className="w-full max-w-sm border border-line bg-ink p-8"><p className="eyebrow">RESTRICTED · 관리자</p><h1 className="mt-4 text-3xl">TILE Admin</h1><input name="password" type="password" required placeholder="Admin password" className="focusable mt-8 w-full border border-line bg-transparent p-3" /><button className="mt-3 w-full bg-white p-3 text-sm font-bold text-ink">Enter</button>{authenticated === false && <p className="mt-3 text-sm text-red-300">Access denied.</p>}</form></main>;
-
-  return (
-    <main className="min-h-screen p-6 sm:p-12"><div className="mx-auto max-w-[1500px]">
-      <p className="eyebrow">OPERATIONS / WHITELIST · 신청 관리</p>
-      <div className="mt-5 flex flex-wrap items-end justify-between gap-5"><h1 className="text-5xl">Applications</h1><input aria-label="Search applications" className="focusable border border-line bg-transparent px-4 py-3 text-sm" placeholder="Search X, wallet, or TILE ID" value={search} onChange={(event) => setSearch(event.target.value)} /></div>
-      <div className="mt-12 grid grid-cols-2 border border-line md:grid-cols-5">{[["Total", items.length], ["Pending Verification", count("pending_verification")], ["Verified", count("verified")], ["Whitelisted", count("whitelisted")], ["Rejected", count("rejected")]].map(([label, value]) => <div className="border-r border-line p-5" key={label}><p className="text-xs text-steel">{label}</p><p className="mt-2 text-3xl">{value}</p></div>)}</div>
-      <div className="mt-8 overflow-x-auto"><table className="w-full min-w-[1250px] text-left text-sm"><thead className="border-b border-line text-xs text-steel"><tr>{["TILE ID", "X / Wallet", "Social", "Discovery", "Assembly", "X Post", "Verification", "Date", "Status"].map((heading) => <th className="py-4 pr-6 font-normal" key={heading}>{heading}</th>)}</tr></thead><tbody>{filtered.map((application) => <tr key={application.id} className="border-b border-line"><td className="py-4 pr-6 font-mono">#{formatTileNumber(application.applicant_tile_number)}</td><td className="max-w-56 py-4 pr-6"><span>@{application.x_username}</span><span className="mt-1 block truncate font-mono text-[10px] text-steel">{application.wallet_address}</span></td><td className="pr-6 text-steel">{application.social_contact || "—"}</td><td className="pr-6">{application.discovery_source}</td><td className="pr-6 text-xs">{application.assembly_completed ? "COMPLETE" : "INCOMPLETE"}</td><td className="pr-6">{application.x_post_url ? <a className="focusable inline-flex items-center gap-1 text-blue" href={application.x_post_url} target="_blank" rel="noopener noreferrer">Open <ArrowUpRight size={13} /></a> : "—"}</td><td className="pr-6 text-xs text-steel">{application.verification_status?.replaceAll("_", " ") || "—"}</td><td className="pr-6 text-steel">{new Date(application.created_at).toLocaleDateString()}</td><td><StatusControl application={application} update={updateStatus} /></td></tr>)}</tbody></table></div>
-    </div></main>
-  );
+export default function Admin(){
+  const[items,setItems]=useState<Application[]>([]),[authenticated,setAuthenticated]=useState<boolean|null>(null),[search,setSearch]=useState("");
+  const load=useCallback(async()=>{const response=await fetch("/api/admin/applications");setAuthenticated(response.ok);if(response.ok)setItems(await response.json())},[]);useEffect(()=>{void load()},[load]);
+  async function login(event:FormEvent<HTMLFormElement>){event.preventDefault();const password=String(new FormData(event.currentTarget).get("password"));const response=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password})});if(response.ok)void load();else setAuthenticated(false)}
+  async function updateStatus(id:string,status:string){const response=await fetch("/api/admin/applications",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status})});if(response.ok)setItems(all=>all.map(item=>item.id===id?{...item,status}:item))}
+  const duplicates=useMemo(()=>{const xs=new Map<string,number>(),ws=new Map<string,number>();items.forEach(i=>{const x=i.x_username.toLowerCase(),w=i.wallet_address.toLowerCase();xs.set(x,(xs.get(x)||0)+1);ws.set(w,(ws.get(w)||0)+1)});return new Set(items.filter(i=>(xs.get(i.x_username.toLowerCase())||0)>1||(ws.get(i.wallet_address.toLowerCase())||0)>1).map(i=>i.id))},[items]);
+  const filtered=useMemo(()=>items.filter(item=>`${item.x_username} ${item.wallet_address} ${item.applicant_tile_number} ${item.status}`.toLowerCase().includes(search.toLowerCase())),[items,search]);const count=(status:string)=>items.filter(item=>item.status===status).length;
+  function exportCsv(){const rows=[["tile_id","x_username","wallet","x_post","verification","status","created_at"],...filtered.map(i=>[String(i.applicant_tile_number),i.x_username,i.wallet_address,i.x_post_url||"",i.verification_status,i.status,i.created_at])];const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="tile-whitelist.csv";a.click();URL.revokeObjectURL(a.href)}
+  if(authenticated!==true)return <main className="mesh flex min-h-screen items-center justify-center p-6"><form onSubmit={login} className="w-full max-w-sm border border-line bg-ink p-8"><p className="eyebrow">RESTRICTED · 관리자</p><h1 className="mt-4 text-3xl">TILE Admin</h1><input name="password" type="password" required placeholder="Admin password" className="focusable mt-8 w-full border border-line bg-transparent p-3"/><button className="mt-3 w-full bg-white p-3 text-sm font-bold text-ink">Enter</button>{authenticated===false&&<p className="mt-3 text-sm text-red-300">Access denied.</p>}</form></main>;
+  return <main className="min-h-screen p-6 sm:p-12"><div className="mx-auto max-w-[1500px]"><p className="eyebrow">OPERATIONS / WHITELIST · 신청 관리</p><div className="mt-5 flex flex-wrap items-end justify-between gap-5"><div><h1 className="text-5xl">Applications</h1><p className="mt-2 text-xs text-steel">Wallet + X duplicate protection active · X post ownership/content verification supported.</p></div><div className="flex flex-wrap gap-2"><input aria-label="Search applications" className="focusable border border-line bg-transparent px-4 py-3 text-sm" placeholder="Search X, wallet, status, or TILE ID" value={search} onChange={e=>setSearch(e.target.value)}/><button onClick={()=>void load()} className="focusable inline-flex items-center gap-2 border border-line px-4 text-xs"><RefreshCw size={14}/>Refresh</button><button onClick={exportCsv} className="focusable inline-flex items-center gap-2 border border-line px-4 text-xs"><Download size={14}/>Export CSV</button></div></div>
+  <div className="mt-12 grid grid-cols-2 border border-line md:grid-cols-6">{[["Total",items.length],["Pending Verification",count("pending_verification")],["Verified",count("verified")],["Whitelisted",count("whitelisted")],["Rejected",count("rejected")],["Duplicate Flags",duplicates.size]].map(([label,value])=><div className="border-r border-line p-5" key={label}><p className="text-xs text-steel">{label}</p><p className="mt-2 text-3xl">{value}</p></div>)}</div>
+  <div className="mt-8 overflow-x-auto"><table className="w-full min-w-[1320px] text-left text-sm"><thead className="border-b border-line text-xs text-steel"><tr>{["TILE ID","X / Wallet","Integrity","Social","Discovery","Assembly","X Post","Verification","Date","Status"].map(h=><th className="py-4 pr-6 font-normal" key={h}>{h}</th>)}</tr></thead><tbody>{filtered.map(a=><tr key={a.id} className="border-b border-line"><td className="py-4 pr-6 font-mono">#{formatTileNumber(a.applicant_tile_number)}</td><td className="max-w-56 py-4 pr-6"><span>@{a.x_username}</span><span className="mt-1 block truncate font-mono text-[10px] text-steel">{a.wallet_address}</span></td><td className="pr-6">{duplicates.has(a.id)?<span className="inline-flex items-center gap-1 text-xs text-red-300"><ShieldAlert size={13}/>CHECK</span>:<span className="text-xs text-green-300">CLEAN</span>}</td><td className="pr-6 text-steel">{a.social_contact||"—"}</td><td className="pr-6">{a.discovery_source}</td><td className="pr-6 text-xs">{a.assembly_completed?"COMPLETE":"INCOMPLETE"}</td><td className="pr-6">{a.x_post_url?<a className="focusable inline-flex items-center gap-1 text-blue" href={a.x_post_url} target="_blank" rel="noopener noreferrer">Open <ArrowUpRight size={13}/></a>:"—"}</td><td className="pr-6 text-xs text-steel">{a.verification_status?.replaceAll("_"," ")||"—"}</td><td className="pr-6 text-steel">{new Date(a.created_at).toLocaleDateString()}</td><td><StatusControl application={a} update={updateStatus}/></td></tr>)}</tbody></table></div></div></main>
 }
-
-function StatusControl({ application, update }: { application: Application; update: (id: string, status: string) => void }) {
-  const options: Record<string, string[]> = { verified: ["verified", "whitelisted", "rejected"], whitelisted: ["whitelisted", "verified"], rejected: ["rejected", "verified"] };
-  if (!options[application.status]) return <span className="text-xs text-steel">{application.status.replaceAll("_", " ")}</span>;
-  return <select aria-label={`Status for TILE ${application.applicant_tile_number}`} value={application.status} onChange={(event) => update(application.id, event.target.value)} className="focusable border border-line bg-ink p-2"><option value={application.status}>{application.status.replaceAll("_", " ")}</option>{options[application.status].filter((status) => status !== application.status).map((status) => <option key={status} value={status}>{status}</option>)}</select>;
-}
+function StatusControl({application,update}:{application:Application;update:(id:string,status:string)=>void}){const options:Record<string,string[]>={verified:["verified","whitelisted","rejected"],whitelisted:["whitelisted","verified"],rejected:["rejected","verified"]};if(!options[application.status])return <span className="text-xs text-steel">{application.status.replaceAll("_"," ")}</span>;return <select aria-label={`Status for TILE ${application.applicant_tile_number}`} value={application.status} onChange={e=>update(application.id,e.target.value)} className="focusable border border-line bg-ink p-2"><option value={application.status}>{application.status.replaceAll("_"," ")}</option>{options[application.status].filter(s=>s!==application.status).map(s=><option key={s} value={s}>{s}</option>)}</select>}
