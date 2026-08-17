@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './whitelist-hide.css';
 
 export const metadata: Metadata = {
   title: 'TILE — 1,111 pieces. One roof.',
