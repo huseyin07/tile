@@ -7,29 +7,41 @@ import {XSignal} from "@/components/XSignal";
 import {SignalVerified} from "@/components/SignalVerified";
 
 type Stage="intro"|"game"|"application"|"signal"|"verified";
+type ResumeStage=Exclude<Stage,"intro">;
 type Session={applicationId:string;tileNumber:number};
 
 export function WhitelistJourney(){
   const[stage,setStage]=useState<Stage>("intro");
+  const[resumeStage,setResumeStage]=useState<ResumeStage|null>(null);
   const[token,setToken]=useState("");
   const[session,setSession]=useState<Session|null>(null);
   const[ready,setReady]=useState(false);
 
   useEffect(()=>{
     const savedSession=sessionStorage.getItem("tile_application_session");
-    const savedStage=sessionStorage.getItem("tile_journey_stage") as Stage|null;
+    const savedStage=sessionStorage.getItem("tile_journey_stage") as ResumeStage|null;
     const savedToken=sessionStorage.getItem("tile_assembly_token")||"";
     if(savedSession){try{setSession(JSON.parse(savedSession))}catch{sessionStorage.removeItem("tile_application_session")}}
-    if(savedToken){setToken(savedToken);if(!savedStage||savedStage==='game'||savedStage==='intro')setStage('application')}
-    if(savedStage==='application'||savedStage==='signal'||savedStage==='verified')setStage(savedStage);
+    if(savedToken)setToken(savedToken);
+    if(savedStage==='application'||savedStage==='signal'||savedStage==='verified')setResumeStage(savedStage);
+    else if(savedToken)setResumeStage('application');
+    else setResumeStage('game');
+    setStage('intro');
     setReady(true);
   },[]);
 
-  function gameComplete(nextToken:string){setToken(nextToken);setStage('application');sessionStorage.setItem('tile_journey_stage','application')}
-  function submitted(applicationId:string,tileNumber:number){const next={applicationId,tileNumber};setSession(next);setStage('signal');sessionStorage.setItem('tile_application_session',JSON.stringify(next));sessionStorage.setItem('tile_journey_stage','signal')}
+  function enterWhitelist(){
+    if(resumeStage==='signal'&&session){setStage('signal');return}
+    if(resumeStage==='verified'&&session){setStage('verified');return}
+    if(token){setStage('application');return}
+    setStage('game');
+  }
+
+  function gameComplete(nextToken:string){setToken(nextToken);setResumeStage('application');setStage('application');sessionStorage.setItem('tile_journey_stage','application')}
+  function submitted(applicationId:string,tileNumber:number){const next={applicationId,tileNumber};setSession(next);setResumeStage('signal');setStage('signal');sessionStorage.setItem('tile_application_session',JSON.stringify(next));sessionStorage.setItem('tile_journey_stage','signal')}
 
   if(!ready)return <section className="korean-landing"/>;
-  const active={game:0,application:1,signal:2,verified:3}[stage as Exclude<Stage,'intro'>] ?? 0;
+  const active={game:0,application:1,signal:2,verified:3}[stage as ResumeStage] ?? 0;
 
   if(stage==='intro')return <section className="korean-landing cinematic-home">
     <div className="scene-vignette"/>
@@ -44,7 +56,7 @@ export function WhitelistJourney(){
       <p className="hero-subtitle">1111 ARE HIDING</p>
       <p lang="ko" className="hero-korean">한 장씩, 이야기를 완성하다.</p>
       <p className="hero-line">One tile at a time.</p>
-      <button onClick={()=>setStage('game')} className="enter-wl">ENTER WHITELIST <span>›</span><small lang="ko">화이트리스트에 참여하고, 타일의 일부가 되세요.</small></button>
+      <button onClick={enterWhitelist} className="enter-wl">ENTER WHITELIST <span>›</span><small lang="ko">화이트리스트에 참여하고, 타일의 일부가 되세요.</small></button>
     </div>
 
     <div className="cinematic-info">
@@ -76,7 +88,7 @@ export function WhitelistJourney(){
         <div className="mt-7 border-t wl-divider pt-7">
           {stage==='game'&&<GiwaGame onComplete={gameComplete}/>} 
           {stage==='application'&&token&&<WhitelistForm assemblyToken={token} onSubmitted={submitted}/>} 
-          {stage==='signal'&&session&&<XSignal {...session} onVerified={()=>{setStage('verified');sessionStorage.setItem('tile_journey_stage','verified')}}/>}
+          {stage==='signal'&&session&&<XSignal {...session} onVerified={()=>{setResumeStage('verified');setStage('verified');sessionStorage.setItem('tile_journey_stage','verified')}}/>}
           {stage==='verified'&&session&&<SignalVerified tileNumber={session.tileNumber}/>} 
         </div>
       </div>
