@@ -28,28 +28,29 @@ export function WhitelistJourney(){
   function gameComplete(nextToken:string){setToken(nextToken);setStage('application');sessionStorage.setItem('tile_journey_stage','application')}
   function submitted(applicationId:string,tileNumber:number){const next={applicationId,tileNumber};setSession(next);setStage('signal');sessionStorage.setItem('tile_application_session',JSON.stringify(next));sessionStorage.setItem('tile_journey_stage','signal')}
 
-  if(!ready)return <section className="korean-landing"><div className="wl-shell"><p className="text-center font-black">화이트리스트 준비 중…</p></div></section>;
+  if(!ready)return <section className="korean-landing"><div className="wl-shell"><div className="wl-glass rounded-3xl p-8 text-center font-bold">화이트리스트 준비 중…</div></div></section>;
   const active={game:0,application:1,signal:2,verified:3}[stage];
 
   return <section id="whitelist" className="korean-landing">
-    <KoreanBackdrop/>
-    <div className="wl-shell relative z-10">
-      <div className="mb-6 flex items-center justify-between gap-4">
+    <div className="wl-shell">
+      <header className="mb-5 flex items-center justify-between gap-4 px-1">
         <div>
-          <p className="text-3xl font-black tracking-[-.05em]">TILE <span lang="ko" className="text-pink">타일</span></p>
-          <p lang="ko" className="mt-1 text-xs font-black text-steel">기와에서 시작되는 1,111개의 이야기</p>
+          <p className="text-3xl font-black tracking-[-.05em] text-white">TILE <span lang="ko" className="wl-gold">타일</span></p>
+          <p lang="ko" className="mt-1 text-xs font-semibold text-white/60">기와와 한옥에서 시작되는 1,111개의 조각</p>
         </div>
-        <span className="rounded-full border-2 border-ink bg-yellow px-4 py-2 text-xs font-black shadow-sticker">WL OPEN</span>
-      </div>
+        <span className="wl-pill rounded-full px-4 py-2 text-xs font-bold">WL OPEN</span>
+      </header>
 
-      <div className="mb-6 rounded-[2rem] border-4 border-ink bg-cream/95 p-5 shadow-soft backdrop-blur-sm sm:p-7">
+      <div className="wl-glass rounded-[2rem] p-5 sm:p-8">
         <div className="mb-7 text-center">
-          <p lang="ko" className="text-sm font-black text-pink">어서 와! 화이트리스트에 도전해 봐.</p>
-          <h1 className="mt-2 text-4xl font-black tracking-[-.06em] sm:text-6xl">GET YOUR TILE.</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm font-bold leading-6 text-steel">Start with the GIWA mini-game, complete your application, post your prepared TILE signal on X, then paste the link back to verify your WL request.</p>
+          <p className="wl-kicker" lang="ko">한국의 기와에서 영감을 받은 NFT 컬렉션</p>
+          <h1 className="mt-3 text-4xl font-black tracking-[-.055em] text-white sm:text-6xl">GET YOUR TILE.</h1>
+          <p className="wl-muted mx-auto mt-4 max-w-2xl text-sm font-medium leading-6">Complete the GIWA challenge, submit your whitelist application, share the prepared X post, then return with the link to verify your request.</p>
         </div>
+
         <WhitelistProgress active={active}/>
-        <div className="mt-7">
+
+        <div className="mt-7 border-t wl-divider pt-7">
           {stage==='game'&&<GiwaGame onComplete={gameComplete}/>} 
           {stage==='application'&&token&&<WhitelistForm assemblyToken={token} onSubmitted={submitted}/>} 
           {stage==='signal'&&session&&<XSignal {...session} onVerified={()=>{setStage('verified');sessionStorage.setItem('tile_journey_stage','verified')}}/>}
@@ -57,20 +58,10 @@ export function WhitelistJourney(){
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 px-2 text-[10px] font-black text-steel">
-        <span lang="ko">작은 기와 하나가 큰 그림을 만듭니다.</span>
+      <footer className="mt-4 flex flex-wrap items-center justify-between gap-3 px-2 text-[10px] font-semibold text-white/55">
+        <span lang="ko">한 장의 기와, 하나의 조각.</span>
         <span>1111 TILEs · ONE BIGGER PICTURE</span>
-      </div>
+      </footer>
     </div>
   </section>
 }
-
-function KoreanBackdrop(){return <div className="k-scene" aria-hidden="true">
-  <div className="k-sun"/>
-  <div className="k-cloud k-cloud-a"/>
-  <div className="k-cloud k-cloud-b"/>
-  <div className="k-tree"><div className="k-trunk"/><div className="k-branch b1"/><div className="k-branch b2"/><div className="k-leaves l1"/><div className="k-leaves l2"/><div className="k-leaves l3"/></div>
-  <div className="k-house k-house-left"><div className="k-roof"/><div className="k-wall"><span>타일</span></div></div>
-  <div className="k-house k-house-right"><div className="k-roof"/><div className="k-wall"><span>기와</span></div></div>
-  <div className="k-ground"/>
-</div>}
