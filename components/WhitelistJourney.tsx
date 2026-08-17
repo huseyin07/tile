@@ -1,66 +1,8 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { TileAssembly } from "@/components/TileAssembly";
-import { WhitelistForm } from "@/components/WhitelistForm";
-import { WhitelistProgress } from "@/components/WhitelistProgress";
-import { XSignal } from "@/components/XSignal";
-import { SignalVerified } from "@/components/SignalVerified";
-
-type Stage = "assembly" | "application" | "signal" | "verified";
-type Session = { applicationId: string; tileNumber: number };
-
-export function WhitelistJourney() {
-  const [stage, setStage] = useState<Stage>("assembly");
-  const [assemblyToken, setAssemblyToken] = useState("");
-  const [session, setSession] = useState<Session | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const token = sessionStorage.getItem("tile_assembly_token") || "";
-    const savedSession = sessionStorage.getItem("tile_application_session");
-    const savedStage = sessionStorage.getItem("tile_journey_stage") as Stage | null;
-    setAssemblyToken(token);
-    if (savedSession) {
-      try { setSession(JSON.parse(savedSession)); } catch { sessionStorage.removeItem("tile_application_session"); }
-    }
-    if (["application", "signal", "verified"].includes(savedStage || "")) setStage(savedStage!);
-    else if (token) setStage("application");
-    setReady(true);
-  }, []);
-
-  function assemblyComplete(token: string) {
-    setAssemblyToken(token);
-    setStage("application");
-    sessionStorage.setItem("tile_journey_stage", "application");
-  }
-
-  function applicationSubmitted(applicationId: string, tileNumber: number) {
-    const next = { applicationId, tileNumber };
-    setSession(next);
-    setStage("signal");
-    sessionStorage.setItem("tile_application_session", JSON.stringify(next));
-    sessionStorage.setItem("tile_journey_stage", "signal");
-  }
-
-  if (!ready) return <section id="whitelist" className="min-h-[700px] border-b border-line bg-[#0b0f14]" />;
-  const active = { assembly: 0, application: 1, signal: 2, verified: 3 }[stage];
-
-  return (
-    <section id="whitelist" className="border-b border-line bg-[#0b0f14]">
-      <div className="section">
-        <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
-          <div><p className="eyebrow">TILE ACTIVATION / WL-1111</p><h2 className="mt-5 text-5xl tracking-[-.05em] sm:text-7xl">Enter the picture.</h2></div>
-          <p className="max-w-xs text-xs leading-5 text-steel">ASSEMBLY → APPLICATION → SIGNAL → VERIFIED<br /><span lang="ko">조립 · 신청 · 신호 · 확인</span></p>
-        </div>
-        <WhitelistProgress active={active} />
-        <div className="mt-16 min-h-[560px]">
-          {stage === "assembly" && <TileAssembly onComplete={assemblyComplete} />}
-          {stage === "application" && <WhitelistForm assemblyToken={assemblyToken} onSubmitted={applicationSubmitted} />}
-          {stage === "signal" && session && <XSignal {...session} onVerified={() => setStage("verified")} />}
-          {stage === "verified" && session && <SignalVerified tileNumber={session.tileNumber} />}
-        </div>
-      </div>
-    </section>
-  );
-}
+import {useEffect,useState} from "react";import {WhitelistForm} from "@/components/WhitelistForm";import {WhitelistProgress} from "@/components/WhitelistProgress";import {XSignal} from "@/components/XSignal";import {SignalVerified} from "@/components/SignalVerified";
+type Stage="application"|"signal"|"verified";type Session={applicationId:string;tileNumber:number};
+export function WhitelistJourney(){const[stage,setStage]=useState<Stage>("application");const[token,setToken]=useState("");const[session,setSession]=useState<Session|null>(null);const[ready,setReady]=useState(false);const[error,setError]=useState("");
+useEffect(()=>{let active=true;async function boot(){const savedSession=sessionStorage.getItem("tile_application_session");const savedStage=sessionStorage.getItem("tile_journey_stage") as Stage|null;if(savedSession){try{setSession(JSON.parse(savedSession))}catch{sessionStorage.removeItem("tile_application_session")}}if(savedStage==="signal"||savedStage==="verified")setStage(savedStage);let savedToken=sessionStorage.getItem("tile_assembly_token")||"";if(!savedToken){try{const r=await fetch('/api/whitelist/assembly',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed:true})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Could not start whitelist.');savedToken=j.token;sessionStorage.setItem('tile_assembly_token',savedToken)}catch(e){if(active)setError(e instanceof Error?e.message:'Could not start whitelist.')}}if(active){setToken(savedToken);setReady(true)}}boot();return()=>{active=false}},[]);
+function submitted(applicationId:string,tileNumber:number){const next={applicationId,tileNumber};setSession(next);setStage('signal');sessionStorage.setItem('tile_application_session',JSON.stringify(next));sessionStorage.setItem('tile_journey_stage','signal')}
+if(!ready)return <section id="whitelist" className="border-b-4 border-ink bg-pink/10"><div className="section text-center font-black">LOADING WL…</div></section>;
+const active={application:0,signal:1,verified:2}[stage];return <section id="whitelist" className="relative overflow-hidden border-b-4 border-ink bg-pink/10"><div className="absolute -left-16 top-20 h-44 w-44 rounded-full bg-yellow/60 blur-3xl"/><div className="absolute -right-12 bottom-10 h-56 w-56 rounded-full bg-blue/40 blur-3xl"/><div className="section relative z-10"><div className="mx-auto max-w-5xl"><div className="mb-10 text-center"><span className="inline-block -rotate-2 rounded-full border-2 border-ink bg-mint px-4 py-2 text-xs font-black shadow-sticker">WL OPEN · 화이트리스트</span><h2 className="mt-6 text-5xl font-black tracking-[-.06em] sm:text-7xl">GET YOUR TILE.</h2><p className="mx-auto mt-4 max-w-xl text-base font-bold text-steel">Apply here, share your TILE signal on X, then paste the post back to verify your WL request.</p></div><WhitelistProgress active={active}/><div className="mt-10 rounded-[2rem] border-4 border-ink bg-cream p-5 shadow-soft sm:p-8">{error&&<p className="rounded-xl border-2 border-ink bg-red px-4 py-3 text-sm font-black text-white">{error}</p>}{stage==='application'&&token&&<WhitelistForm assemblyToken={token} onSubmitted={submitted}/>} {stage==='signal'&&session&&<XSignal {...session} onVerified={()=>{setStage('verified');sessionStorage.setItem('tile_journey_stage','verified')}}/>}{stage==='verified'&&session&&<SignalVerified tileNumber={session.tileNumber}/>}</div></div></div></section>}
