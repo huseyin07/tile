@@ -1,2 +1,5 @@
-import {Header} from '@/components/Header';import {Hero} from '@/components/Hero';import {Collection} from '@/components/Collection';import {Journey} from '@/components/Journey';import {WhitelistJourney} from '@/components/WhitelistJourney';import {Lore} from '@/components/Lore';import {FAQ} from '@/components/FAQ';import {Footer} from '@/components/Footer';
-export default function Home(){return <><Header/><main><WhitelistJourney/><Hero/><Collection/><Journey/><Lore/><FAQ/></main><Footer/></>}
+import {WhitelistJourney} from '@/components/WhitelistJourney';
+
+export default function Home(){
+  return <main><WhitelistJourney/></main>;
+}
