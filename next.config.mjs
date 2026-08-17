@@ -1,4 +1,4 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = { reactStrictMode: true };
-// Vercel reconnection deployment test.
+// Deploy cinematic TILE background and whitelist art direction.
 export default nextConfig;
