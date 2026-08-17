@@ -18,8 +18,11 @@ export async function POST(request: NextRequest) {
     }
 
     const db = adminDb();
-    const { data: existing } = await db.from("whitelist_applications").select("id").ilike("wallet_address", wallet).maybeSingle();
-    if (existing) return NextResponse.json({ error: "An application already exists for this wallet." }, { status: 409 });
+    const { data: walletExisting } = await db.from("whitelist_applications").select("id").ilike("wallet_address", wallet).maybeSingle();
+    if (walletExisting) return NextResponse.json({ error: "An application already exists for this wallet." }, { status: 409 });
+
+    const { data: xExisting } = await db.from("whitelist_applications").select("id").ilike("x_username", xUsername).maybeSingle();
+    if (xExisting) return NextResponse.json({ error: "An application already exists for this X account." }, { status: 409 });
 
     const { data, error } = await db.from("whitelist_applications").insert({
       x_username: xUsername,
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
     }).select("id,applicant_tile_number").single();
 
     if (error) {
-      if (error.code === "23505") return NextResponse.json({ error: "An application already exists for this wallet." }, { status: 409 });
+      if (error.code === "23505") return NextResponse.json({ error: "An application already exists for this wallet or X account." }, { status: 409 });
       throw error;
     }
     return NextResponse.json({ applicationId: data.id, tileNumber: data.applicant_tile_number }, { status: 201 });
