@@ -1,4 +1,4 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = { reactStrictMode: true };
-// Redeploy marker: restore cinematic TILE landing.
+// Production redeploy marker for the TILE editorial whitelist build.
 export default nextConfig;
