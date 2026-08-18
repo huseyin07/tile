@@ -30,6 +30,31 @@ export default function WhitelistUxFixes(){
       }
     };
 
+    const enhanceSignalPanel=()=>{
+      const aside=root.querySelector<HTMLElement>('.task-layout aside');
+      if(!aside||aside.querySelector('[data-signal-visual]'))return;
+      const oldSeal=aside.querySelector<HTMLElement>('.seal-1111');
+      if(oldSeal) oldSeal.style.display='none';
+
+      const visual=document.createElement('div');
+      visual.setAttribute('data-signal-visual','true');
+      visual.className='task-aside-visual';
+      visual.innerHTML=`
+        <div class="task-scene-sky"></div>
+        <div class="task-scene-roofs task-scene-roofs-a"></div>
+        <div class="task-scene-roofs task-scene-roofs-b"></div>
+        <div class="task-scene-lantern task-scene-lantern-a">✿</div>
+        <div class="task-scene-lantern task-scene-lantern-b">✿</div>
+        <div class="task-scene-flag"><span>✿</span></div>
+        <div class="task-scene-petals"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="task-scene-meta">
+          <div><span class="task-meta-icon">✿</span><b>1,111</b><small>First 1,111</small></div>
+          <div><span class="task-meta-roof">⌂</span><b>One roof</b><small>Stronger together</small></div>
+          <div><span class="task-meta-roof">⌂</span><b>GIWA</b><small>The home we return to</small></div>
+        </div>`;
+      aside.appendChild(visual);
+    };
+
     const enhanceShare=()=>{
       const panel=root.querySelector<HTMLElement>('.share-panel');
       if(!panel||panel.querySelector('[data-tile-share-image]'))return;
@@ -73,7 +98,7 @@ export default function WhitelistUxFixes(){
       panel.prepend(wrap);
     };
 
-    const refresh=()=>{normalizeInputs();enhanceShare()};
+    const refresh=()=>{normalizeInputs();enhanceSignalPanel();enhanceShare()};
     const observer=new MutationObserver(refresh);
     observer.observe(document.body,{childList:true,subtree:true});
     refresh();
