@@ -3,6 +3,7 @@ export const siteConfig = {
   supply: 1111,
   xHandle: "TileOnGIWA",
   xUrl: "https://x.com/TileOnGIWA",
+  websiteUrl: "https://tileongıwa.xyz",
   whitelistPostUrl: "https://x.com/TileOnGIWA/status/2089617124595540088?s=20",
   mintNetwork: "Robinhood Chain mainnet",
   mintDate: "TBA",
@@ -16,6 +17,7 @@ export const siteConfig = {
       "Minting first on Robinhood Chain. Moving to GIWA when mainnet is live.",
       "",
       "@TileOnGIWA",
+      "https://tileongıwa.xyz",
     ].join("\n");
   },
 } as const;
