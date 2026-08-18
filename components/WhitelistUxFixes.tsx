@@ -30,9 +30,53 @@ export default function WhitelistUxFixes(){
       }
     };
 
-    const observer=new MutationObserver(normalizeInputs);
+    const enhanceShare=()=>{
+      const panel=root.querySelector<HTMLElement>('.share-panel');
+      if(!panel||panel.querySelector('[data-tile-share-image]'))return;
+      const wrap=document.createElement('div');
+      wrap.setAttribute('data-tile-share-image','true');
+      wrap.style.margin='0 0 22px';
+      wrap.style.border='1px solid rgba(200,154,82,.35)';
+      wrap.style.background='rgba(10,10,8,.55)';
+      wrap.style.padding='12px';
+
+      const img=document.createElement('img');
+      img.src='/og-tile.svg';
+      img.alt='TILE share image';
+      img.style.display='block';
+      img.style.width='100%';
+      img.style.height='auto';
+      img.style.border='1px solid rgba(255,255,255,.08)';
+      img.style.marginBottom='12px';
+
+      const note=document.createElement('p');
+      note.textContent='Add this TILE image to your X post before publishing.';
+      note.style.margin='0 0 10px';
+      note.style.fontSize='12px';
+      note.style.opacity='.72';
+
+      const download=document.createElement('a');
+      download.href='/og-tile.svg';
+      download.download='TILE-share-image.svg';
+      download.textContent='DOWNLOAD POST IMAGE';
+      download.style.display='inline-flex';
+      download.style.alignItems='center';
+      download.style.padding='11px 14px';
+      download.style.border='1px solid rgba(200,154,82,.65)';
+      download.style.fontSize='11px';
+      download.style.fontWeight='700';
+      download.style.letterSpacing='.08em';
+      download.style.color='inherit';
+      download.style.textDecoration='none';
+
+      wrap.append(img,note,download);
+      panel.prepend(wrap);
+    };
+
+    const refresh=()=>{normalizeInputs();enhanceShare()};
+    const observer=new MutationObserver(refresh);
     observer.observe(document.body,{childList:true,subtree:true});
-    normalizeInputs();
+    refresh();
 
     const clickHandler=(event:MouseEvent)=>{
       const target=event.target as HTMLElement|null;
