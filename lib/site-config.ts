@@ -3,7 +3,7 @@ export const siteConfig = {
   supply: 1111,
   xHandle: "TileOnGIWA",
   xUrl: "https://x.com/TileOnGIWA",
-  whitelistPostUrl: "#",
+  whitelistPostUrl: "https://x.com/TileOnGIWA/status/2089617124595540088?s=20",
   mintNetwork: "Robinhood Chain mainnet",
   mintDate: "TBA",
   createSignalPost(_tileNumber?: number) {
