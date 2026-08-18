@@ -9,9 +9,21 @@ import {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const applicationId = typeof body.applicationId === "string" ? body.applicationId : "";
+    const rawApplicationId = body.applicationId;
+    const applicationId =
+      typeof rawApplicationId === "number" && Number.isInteger(rawApplicationId) && rawApplicationId > 0
+        ? rawApplicationId
+        : typeof rawApplicationId === "string" && /^\d+$/.test(rawApplicationId)
+          ? Number(rawApplicationId)
+          : typeof rawApplicationId === "string" && /^[0-9a-f-]{36}$/i.test(rawApplicationId)
+            ? rawApplicationId
+            : null;
     const post = normalizeXPostUrl(body.xPostUrl);
-    if (!/^[0-9a-f-]{36}$/i.test(applicationId) || !post) {
+
+    if (applicationId === null) {
+      return NextResponse.json({ error: "Application session is invalid. Please submit the whitelist form again." }, { status: 400 });
+    }
+    if (!post) {
       return NextResponse.json(
         { error: "Enter a valid x.com or twitter.com status URL." },
         { status: 400 },
