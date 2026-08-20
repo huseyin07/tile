@@ -3,9 +3,9 @@
 import {useEffect,useMemo,useState,type CSSProperties} from "react";
 import {createPortal} from "react-dom";
 import {ChevronLeft,ChevronRight} from "lucide-react";
-import previewSprite from "@/lib/nft-preview/sprite";
 
 const COLS=5;
+const ROWS=4;
 const TOTAL=19;
 
 export default function CollectionPreview(){
@@ -38,15 +38,13 @@ export default function CollectionPreview(){
     sync();
     const observer=new MutationObserver(sync);
     observer.observe(document.body,{childList:true,subtree:true});
-
-    return()=>{
-      observer.disconnect();
-      node?.remove();
-    };
+    return()=>{observer.disconnect();node?.remove()};
   },[]);
+
   const items=useMemo(()=>Array.from({length:TOTAL},(_,i)=>i),[]);
   const step=(d:number)=>setActive(v=>(v+d+items.length)%items.length);
   if(!mount)return null;
+
   return createPortal(<section className="collection-preview" aria-label="TILE collection preview">
     <div className="collection-preview-head">
       <div><p className="eyebrow">COLLECTION PREVIEW · 컬렉션</p><h2>THE FIRST<br/>1,111.</h2></div>
@@ -64,16 +62,18 @@ export default function CollectionPreview(){
           const visible=distance<=2;
           const col=n%COLS;
           const row=Math.floor(n/COLS);
+          const x=(col/(COLS-1))*100;
+          const y=(row/(ROWS-1))*100;
           const style={
             "--delta":delta,
             "--distance":distance,
-            "--col":col,
-            "--row":row,
+            "--crop-x":`${x}%`,
+            "--crop-y":`${y}%`,
             opacity:visible?1:0,
             pointerEvents:visible?"auto":"none"
           } as CSSProperties;
           return <button key={n} onClick={()=>setActive(n)} className={`collection-card ${delta===0?"active":""}`} style={style} aria-label={`Preview TILE ${n+1}`}>
-            <span className="collection-art"><img src={previewSprite} alt="" draggable={false}/></span>
+            <span className="collection-art"/>
             <span className="collection-id">TILE · PREVIEW {String(n+1).padStart(2,"0")}</span>
           </button>
         })}
