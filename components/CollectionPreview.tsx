@@ -6,7 +6,6 @@ import {ChevronLeft,ChevronRight} from "lucide-react";
 import previewSprite from "@/lib/nft-preview/sprite";
 
 const COLS=5;
-const ROWS=4;
 const TOTAL=19;
 
 export default function CollectionPreview(){
@@ -43,14 +42,14 @@ export default function CollectionPreview(){
           const style={
             "--delta":delta,
             "--distance":distance,
-            "--crop-x":`${(col/(COLS-1))*100}%`,
-            "--crop-y":`${(row/(ROWS-1))*100}%`,
-            "--preview-image":`url(${previewSprite})`,
+            "--col":col,
+            "--row":row,
             opacity:visible?1:0,
             pointerEvents:visible?"auto":"none"
           } as CSSProperties;
           return <button key={n} onClick={()=>setActive(n)} className={`collection-card ${delta===0?"active":""}`} style={style} aria-label={`Preview TILE ${n+1}`}>
-            <span className="collection-art"/><span className="collection-id">TILE · PREVIEW {String(n+1).padStart(2,"0")}</span>
+            <span className="collection-art"><img src={previewSprite} alt="" draggable={false}/></span>
+            <span className="collection-id">TILE · PREVIEW {String(n+1).padStart(2,"0")}</span>
           </button>
         })}
       </div>
