@@ -8,6 +8,7 @@ export default function SitePolish(){
     const cleanupFns:(()=>void)[]=[];
 
     const enhance=()=>{
+      document.querySelector<HTMLElement>('.why1111')?.remove();
       const hero=document.querySelector<HTMLElement>('.hero');
       if(hero&&!hero.querySelector('.hero-depth')){
         const depth=document.createElement('div');depth.className='hero-depth';depth.innerHTML='<i class="hero-mist hero-mist-a"></i><i class="hero-mist hero-mist-b"></i><i class="hero-roof-silhouette"></i>';hero.prepend(depth);
@@ -15,7 +16,7 @@ export default function SitePolish(){
       if(!document.querySelector('.page-progress')){
         const progress=document.createElement('div');progress.className='page-progress';progress.setAttribute('aria-hidden','true');progress.innerHTML='<i></i>';document.body.appendChild(progress);
       }
-      document.querySelectorAll<HTMLElement>('.story-section,.why1111,.mint-state,.wl-story,.migration-section,.faq-section,.final-cta').forEach((section,i)=>{
+      document.querySelectorAll<HTMLElement>('.story-section,.mint-state,.wl-story,.migration-section,.faq-section,.final-cta').forEach((section,i)=>{
         if(section.querySelector(':scope > .roof-journey'))return;
         const roof=document.createElement('div');roof.className='roof-journey';roof.setAttribute('aria-hidden','true');roof.innerHTML=Array.from({length:9},(_,n)=>`<i style="--n:${n}"></i>`).join('');section.prepend(roof);section.style.setProperty('--roof-index',String(i));
       });
@@ -27,7 +28,7 @@ export default function SitePolish(){
       if(giwa&&!giwa.parentElement?.querySelector('.giwa-hover-labels')){
         const labels=document.createElement('div');labels.className='giwa-hover-labels';labels.innerHTML='<span>ONE TILE</span><span>ONE ROOF</span><span>ONE CULTURE</span>';giwa.insertAdjacentElement('afterend',labels);
       }
-      document.querySelectorAll<HTMLElement>('.story-copy h2,.why1111 h2,.section-intro h2,.migration-copy h2,.faq-title h2,.final-cta h2').forEach(h=>h.classList.add('kinetic-title'));
+      document.querySelectorAll<HTMLElement>('.story-copy h2,.section-intro h2,.migration-copy h2,.faq-title h2,.final-cta h2').forEach(h=>h.classList.add('kinetic-title'));
       document.querySelectorAll<HTMLElement>('.faq-list article').forEach((a,i)=>{if(!a.querySelector('.faq-seal')){const s=document.createElement('i');s.className='faq-seal';s.textContent=String(i+1).padStart(2,'0');a.appendChild(s)}});
     };
     enhance();
@@ -50,7 +51,7 @@ export default function SitePolish(){
     document.addEventListener('click',onClick);cleanupFns.push(()=>document.removeEventListener('click',onClick));
 
     const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('tile-visible');if(entry.target.classList.contains('kinetic-title'))entry.target.classList.add('kinetic-live')}}),{threshold:.12,rootMargin:'0px 0px -7%'});
-    const observe=()=>document.querySelectorAll<HTMLElement>('.story-section,.why1111,.mint-state,.wl-story,.migration-section,.faq-section,.kinetic-title,.big-number').forEach(x=>{if(!x.dataset.polishObserved){x.dataset.polishObserved='1';if(!x.classList.contains('kinetic-title'))x.classList.add('tile-reveal');revealObserver.observe(x)}});
+    const observe=()=>document.querySelectorAll<HTMLElement>('.story-section,.mint-state,.wl-story,.migration-section,.faq-section,.kinetic-title').forEach(x=>{if(!x.dataset.polishObserved){x.dataset.polishObserved='1';if(!x.classList.contains('kinetic-title'))x.classList.add('tile-reveal');revealObserver.observe(x)}});
     observe();const obsMutation=new MutationObserver(observe);obsMutation.observe(document.body,{childList:true,subtree:true});cleanupFns.push(()=>{revealObserver.disconnect();obsMutation.disconnect()});
 
     let frame=0;
@@ -64,7 +65,6 @@ export default function SitePolish(){
       if(hero){hero.style.setProperty('--tile-parallax',`${hy*.055}px`);hero.style.setProperty('--hero-depth-y',`${hy*.025}px`)}
       const sun=document.querySelector<HTMLElement>('.hero-sun');const roof=document.querySelector<HTMLElement>('.roof-pattern');const pineA=document.querySelector<HTMLElement>('.hero-pine-a');const pineB=document.querySelector<HTMLElement>('.hero-pine-b');
       if(sun)sun.style.transform=`translate3d(0,${hy*.035}px,0)`;if(roof)roof.style.transform=`translate3d(0,${-hy*.025}px,0)`;if(pineA)pineA.style.translate=`0 ${hy*.018}px`;if(pineB)pineB.style.translate=`0 ${hy*.028}px`;
-      const n=document.querySelector<HTMLElement>('.big-number');if(n){const r=n.getBoundingClientRect();const p=Math.max(0,Math.min(1,(viewport-r.top)/(viewport+r.height*.7)));n.style.setProperty('--number-progress',String(p))}
       const journey=document.querySelector<HTMLElement>('.migration-section');if(journey){const r=journey.getBoundingClientRect();const progress=Math.max(0,Math.min(1,(viewport-r.top)/(viewport+r.height*.65)));journey.style.setProperty('--journey-progress',String(progress));[...journey.querySelectorAll<HTMLElement>('.network-node')].forEach((node,i,arr)=>node.classList.toggle('scroll-active',progress>i/(Math.max(1,arr.length-1))-.06))}
       document.querySelectorAll<HTMLElement>('.roof-journey').forEach(roofEl=>{const p=roofEl.parentElement?.getBoundingClientRect();if(!p)return;roofEl.style.setProperty('--roof-progress',String(Math.max(0,Math.min(1,(viewport-p.top)/(viewport+p.height)))))});
     };
