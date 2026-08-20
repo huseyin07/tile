@@ -5,6 +5,7 @@ import './enhancements.css';
 import './whitelist-signal-visual.css';
 import './site-polish.css';
 import './site-refinement.css';
+import './ui-luxury.css';
 import './end-sections-cleanup.css';
 
 export const metadata: Metadata = {
