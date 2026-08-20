@@ -12,12 +12,37 @@ export default function CollectionPreview(){
   const[active,setActive]=useState(0);
   const[mount,setMount]=useState<HTMLElement|null>(null);
   useEffect(()=>{
-    const story=document.getElementById("story");
-    if(!story)return;
     let node=document.getElementById("collection-preview-mount") as HTMLElement|null;
-    if(!node){node=document.createElement("div");node.id="collection-preview-mount";story.after(node)}
-    setMount(node);
-    return()=>{node?.remove()};
+
+    const sync=()=>{
+      const whitelistOpen=Boolean(document.querySelector(".wl-experience"));
+      const story=document.getElementById("story");
+
+      if(whitelistOpen||!story){
+        if(node)node.style.display="none";
+        return;
+      }
+
+      if(!node){
+        node=document.createElement("div");
+        node.id="collection-preview-mount";
+        story.after(node);
+        setMount(node);
+      }else{
+        if(node.previousElementSibling!==story)story.after(node);
+        node.style.display="";
+        setMount(node);
+      }
+    };
+
+    sync();
+    const observer=new MutationObserver(sync);
+    observer.observe(document.body,{childList:true,subtree:true});
+
+    return()=>{
+      observer.disconnect();
+      node?.remove();
+    };
   },[]);
   const items=useMemo(()=>Array.from({length:TOTAL},(_,i)=>i),[]);
   const step=(d:number)=>setActive(v=>(v+d+items.length)%items.length);
