@@ -8,7 +8,8 @@ export default function SitePolish(){
     const cleanupFns:(()=>void)[]=[];
 
     const enhance=()=>{
-      document.querySelector<HTMLElement>('.why1111')?.remove();
+      const why=document.querySelector<HTMLElement>('.why1111');
+      if(why) why.style.display='none';
       const hero=document.querySelector<HTMLElement>('.hero');
       if(hero&&!hero.querySelector('.hero-depth')){
         const depth=document.createElement('div');depth.className='hero-depth';depth.innerHTML='<i class="hero-mist hero-mist-a"></i><i class="hero-mist hero-mist-b"></i><i class="hero-roof-silhouette"></i>';hero.prepend(depth);
