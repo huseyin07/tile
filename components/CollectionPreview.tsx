@@ -3,6 +3,11 @@
 import {useEffect,useMemo,useState,type CSSProperties} from "react";
 import {createPortal} from "react-dom";
 import {ChevronLeft,ChevronRight} from "lucide-react";
+import previewSprite from "@/lib/nft-preview/sprite";
+
+const COLS=5;
+const ROWS=4;
+const TOTAL=19;
 
 export default function CollectionPreview(){
   const[active,setActive]=useState(0);
@@ -15,23 +20,35 @@ export default function CollectionPreview(){
     setMount(node);
     return()=>{node?.remove()};
   },[]);
-  const items=useMemo(()=>Array.from({length:10},(_,i)=>i),[]);
+  const items=useMemo(()=>Array.from({length:TOTAL},(_,i)=>i),[]);
   const step=(d:number)=>setActive(v=>(v+d+items.length)%items.length);
   if(!mount)return null;
   return createPortal(<section className="collection-preview" aria-label="TILE collection preview">
     <div className="collection-preview-head">
       <div><p className="eyebrow">COLLECTION PREVIEW · 컬렉션</p><h2>THE FIRST<br/>1,111.</h2></div>
-      <div className="collection-preview-copy"><p>A first look at the visual language of TILE. Ten early pieces from a collection built around identity, symbols and the idea of one roof.</p><span>{String(active+1).padStart(2,"0")} / 10</span></div>
+      <div className="collection-preview-copy"><p>A first look at the visual language of TILE. Nineteen early pieces from a collection built around identity, symbols and the idea of one roof.</p><span>{String(active+1).padStart(2,"0")} / {TOTAL}</span></div>
     </div>
     <div className="collection-stage">
       <button className="collection-arrow left" onClick={()=>step(-1)} aria-label="Previous NFT"><ChevronLeft/></button>
       <div className="collection-track">
         {items.map((n)=>{
           let delta=n-active;
-          if(delta>5)delta-=10;if(delta<-5)delta+=10;
+          const half=Math.floor(items.length/2);
+          if(delta>half)delta-=items.length;
+          if(delta<-half)delta+=items.length;
           const distance=Math.abs(delta);
           const visible=distance<=2;
-          const style={"--delta":delta,"--distance":distance,"--crop-x":`${(n%5)*25}%`,"--crop-y":n<5?"0%":"100%",opacity:visible?1:0,pointerEvents:visible?"auto":"none"} as CSSProperties;
+          const col=n%COLS;
+          const row=Math.floor(n/COLS);
+          const style={
+            "--delta":delta,
+            "--distance":distance,
+            "--crop-x":`${(col/(COLS-1))*100}%`,
+            "--crop-y":`${(row/(ROWS-1))*100}%`,
+            "--preview-image":`url(${previewSprite})`,
+            opacity:visible?1:0,
+            pointerEvents:visible?"auto":"none"
+          } as CSSProperties;
           return <button key={n} onClick={()=>setActive(n)} className={`collection-card ${delta===0?"active":""}`} style={style} aria-label={`Preview TILE ${n+1}`}>
             <span className="collection-art"/><span className="collection-id">TILE · PREVIEW {String(n+1).padStart(2,"0")}</span>
           </button>
