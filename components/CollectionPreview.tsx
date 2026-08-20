@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useState,type CSSProperties} from "react";
 import {createPortal} from "react-dom";
 import {ChevronLeft,ChevronRight} from "lucide-react";
 
@@ -29,8 +29,10 @@ export default function CollectionPreview(){
         {items.map((n)=>{
           let delta=n-active;
           if(delta>5)delta-=10;if(delta<-5)delta+=10;
-          const visible=Math.abs(delta)<=2;
-          return <button key={n} onClick={()=>setActive(n)} className={`collection-card ${delta===0?"active":""}`} style={{"--delta":delta,"--crop-x":`${(n%5)*25}%`,"--crop-y":n<5?"0%":"100%",opacity:visible?1:0,pointerEvents:visible?"auto":"none"} as React.CSSProperties} aria-label={`Preview TILE ${n+1}`}>
+          const distance=Math.abs(delta);
+          const visible=distance<=2;
+          const style={"--delta":delta,"--distance":distance,"--crop-x":`${(n%5)*25}%`,"--crop-y":n<5?"0%":"100%",opacity:visible?1:0,pointerEvents:visible?"auto":"none"} as CSSProperties;
+          return <button key={n} onClick={()=>setActive(n)} className={`collection-card ${delta===0?"active":""}`} style={style} aria-label={`Preview TILE ${n+1}`}>
             <span className="collection-art"/><span className="collection-id">TILE · PREVIEW {String(n+1).padStart(2,"0")}</span>
           </button>
         })}
