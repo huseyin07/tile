@@ -3,6 +3,7 @@ import './globals.css';
 import './whitelist-hide.css';
 import './enhancements.css';
 import './whitelist-signal-visual.css';
+import './site-polish.css';
 
 export const metadata: Metadata = {
   title: 'TILE — 1,111 pieces. One roof.',
