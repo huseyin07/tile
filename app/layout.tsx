@@ -8,6 +8,7 @@ import './site-refinement.css';
 import './ui-luxury.css';
 import './end-sections-cleanup.css';
 import './collection-preview.css';
+import './ambient-music.css';
 
 export const metadata: Metadata = {
   title: 'TILE — 1,111 pieces. One roof.',
