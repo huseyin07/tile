@@ -6,32 +6,34 @@ const TRACK="https://pixabay.com/music/download/the-peacock-299337/";
 
 export default function AmbientMusic(){
   const audioRef=useRef<HTMLAudioElement|null>(null);
-  const[playing,setPlaying]=useState(false);
+  const[playing,setPlaying]=useState(true);
   const[ready,setReady]=useState(false);
 
   useEffect(()=>{
     const audio=new Audio(TRACK);
     audio.loop=true;
     audio.volume=0.12;
-    audio.preload="none";
+    audio.preload="auto";
+    audio.autoplay=true;
     audioRef.current=audio;
     setReady(true);
 
-    const tryStart=()=>{
+    const start=()=>audio.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false));
+    start();
+
+    const resumeAfterGesture=()=>{
+      if(!audio.paused)return;
       audio.play().then(()=>setPlaying(true)).catch(()=>{});
-      window.removeEventListener("pointerdown",tryStart);
-      window.removeEventListener("keydown",tryStart);
-      window.removeEventListener("touchstart",tryStart);
     };
 
-    window.addEventListener("pointerdown",tryStart,{once:true});
-    window.addEventListener("keydown",tryStart,{once:true});
-    window.addEventListener("touchstart",tryStart,{once:true,passive:true});
+    window.addEventListener("pointerdown",resumeAfterGesture,{passive:true});
+    window.addEventListener("keydown",resumeAfterGesture);
+    window.addEventListener("touchstart",resumeAfterGesture,{passive:true});
 
     return()=>{
-      window.removeEventListener("pointerdown",tryStart);
-      window.removeEventListener("keydown",tryStart);
-      window.removeEventListener("touchstart",tryStart);
+      window.removeEventListener("pointerdown",resumeAfterGesture);
+      window.removeEventListener("keydown",resumeAfterGesture);
+      window.removeEventListener("touchstart",resumeAfterGesture);
       audio.pause();
       audio.src="";
     };
