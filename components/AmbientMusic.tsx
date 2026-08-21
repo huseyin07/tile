@@ -2,19 +2,21 @@
 
 import {useEffect,useRef,useState} from "react";
 
-const TRACK="https://pixabay.com/music/download/the-peacock-299337/";
+const TRACK="https://commons.wikimedia.org/wiki/Special:Redirect/file/Traditional%20gayageum%20play.ogg";
 
 export default function AmbientMusic(){
   const audioRef=useRef<HTMLAudioElement|null>(null);
-  const[playing,setPlaying]=useState(true);
+  const[playing,setPlaying]=useState(false);
   const[ready,setReady]=useState(false);
 
   useEffect(()=>{
-    const audio=new Audio(TRACK);
+    const audio=new Audio();
+    audio.src=TRACK;
     audio.loop=true;
     audio.volume=0.12;
     audio.preload="auto";
     audio.autoplay=true;
+    audio.playsInline=true;
     audioRef.current=audio;
     setReady(true);
 
@@ -22,8 +24,7 @@ export default function AmbientMusic(){
     start();
 
     const resumeAfterGesture=()=>{
-      if(!audio.paused)return;
-      audio.play().then(()=>setPlaying(true)).catch(()=>{});
+      if(audio.paused){audio.play().then(()=>setPlaying(true)).catch(()=>{});}
     };
 
     window.addEventListener("pointerdown",resumeAfterGesture,{passive:true});
